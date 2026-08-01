@@ -52,4 +52,12 @@ php artisan migrate --force
 # not allowed or link target not accessible").
 [ -L public/storage ] || php artisan storage:link --relative
 
+# Belt-and-suspenders: guarantee only mpm_prefork is enabled right before
+# Apache starts.  Build-time cleanup can be silently undone by a2enmod or
+# apt triggers; this runtime guard is the last line of defence against
+# "AH00534: More than one MPM loaded".
+rm -f /etc/apache2/mods-enabled/mpm_*.load /etc/apache2/mods-enabled/mpm_*.conf
+ln -sf ../mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load
+ln -sf ../mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
+
 exec "$@"
