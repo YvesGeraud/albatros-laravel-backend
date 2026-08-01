@@ -1,0 +1,36 @@
+# Standalone compose para iterar solo en el backend. Asume que el servicio
+# `db` del docker-compose.yml de la raíz YA está corriendo (`docker compose up -d db`
+# desde la raíz del proyecto) — este archivo no define su propia base de datos,
+# se conecta a la red que crea ese compose raíz.
+#
+# Los contenedores se resuelven entre sí por NOMBRE DE SERVICIO, nunca por
+# 127.0.0.1/localhost — por eso DB_HOST=db (el nombre del servicio en el
+# compose raíz), no el valor que tiene backend/.env para desarrollo nativo.
+name: albatros-backend
+
+services:
+  backend:
+    build: .
+    container_name: albatros_backend
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: albatros
+      DB_USERNAME: albatros
+      DB_PASSWORD: albatros
+    env_file:
+      - .env
+    networks:
+      - albatros_default
+
+networks:
+  albatros_default:
+    external: true
+
+volumes:
+  backend_vendor:

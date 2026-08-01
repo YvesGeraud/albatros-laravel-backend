@@ -1,0 +1,8 @@
+{
+  "name": "albatros-backend",
+  "private": true,
+  "scripts": {
+    "dev": "docker compose -f ../docker-compose.yml up -d db && docker compose up --build",
+    "dev:down": "docker compose down"
+  }
+}
