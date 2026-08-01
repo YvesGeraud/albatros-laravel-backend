@@ -21,11 +21,27 @@ PORT="${PORT:-80}"
 sed -ri "s/^Listen .*/Listen ${PORT}/" /etc/apache2/ports.conf
 sed -ri "s/<VirtualHost \*:[0-9]+>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-available/000-default.conf
 
+# Masked diagnostics so we can see in the deploy logs whether DB_URL/DB_HOST
+# actually resolved to something real (vs. an unresolved "${{...}}" reference
+# or just being empty) — without leaking the password.
+echo "DB_CONNECTION=${DB_CONNECTION}"
+echo "DB_URL is set: $([ -n "$DB_URL" ] && echo yes || echo no) — starts with: $(echo "$DB_URL" | cut -c1-15)..."
+echo "DB_HOST=${DB_HOST}"
+
 echo "Esperando a que la base de datos acepte conexiones..."
-retries=30
-until php artisan db:show > /dev/null 2>&1 || [ "$retries" -eq 0 ]; do
+retries=15
+# A raw PDO connection attempt — not `db:show` (which formats table sizes via
+# Illuminate\Support\Number and throws if the "intl" extension is missing,
+# making it fail regardless of whether the DB is actually reachable).
+until output=$(php artisan tinker --execute="DB::connection()->getPdo();" 2>&1); do
     retries=$((retries - 1))
-    sleep 1
+    if [ "$retries" -le 0 ]; then
+        echo "No se pudo conectar a la base de datos después de 15 intentos. Último error:"
+        echo "$output"
+        break
+    fi
+    echo "Sin conexión todavía, reintentando... ($retries intentos restantes)"
+    sleep 2
 done
 
 php artisan migrate --force
