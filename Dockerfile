@@ -4,7 +4,13 @@ RUN apt-get update && apt-get install -y \
         libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libicu-dev unzip git \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql gd zip intl \
-    && a2enmod rewrite \
+    # mod_php requires the prefork MPM (it isn't thread-safe); make this
+    # explicit and deterministic rather than trusting whatever the apt
+    # dependency resolution happened to leave enabled — that's what caused
+    # "More than one MPM loaded" (mpm_event alongside mpm_prefork).
+    && (a2dismod mpm_event || true) \
+    && (a2dismod mpm_worker || true) \
+    && a2enmod mpm_prefork rewrite \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
