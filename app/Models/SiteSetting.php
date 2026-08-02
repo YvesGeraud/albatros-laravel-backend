@@ -43,6 +43,18 @@ class SiteSetting extends Model
         }
 
         $disk = config('filesystems.default');
+
+        if ($disk === 's3') {
+            try {
+                $signedUrl = \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($path, now()->addDays(7));
+                if ($signedUrl) {
+                    return $signedUrl;
+                }
+            } catch (\Throwable $e) {
+                // Fallback if temporaryUrl is not supported
+            }
+        }
+
         $url = \Illuminate\Support\Facades\Storage::disk($disk)->url($path);
 
         if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {

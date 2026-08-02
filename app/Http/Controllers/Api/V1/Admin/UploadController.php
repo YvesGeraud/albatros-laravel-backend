@@ -22,7 +22,7 @@ class UploadController extends Controller
 
         return response()->json([
             'path' => $path,
-            'url' => Storage::disk(config('filesystems.default'))->url($path),
+            'url' => \App\Models\SiteSetting::formatUrl($path),
         ], 201);
     }
 }
