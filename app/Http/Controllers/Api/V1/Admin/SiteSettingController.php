@@ -14,9 +14,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->pluck('value', 'key')->all();
 
         $heroVideoPath = $settings['hero_video_path'] ?? null;
-        $heroVideoUrl = $heroVideoPath
-            ? Storage::disk(config('filesystems.default'))->url($heroVideoPath)
-            : null;
+        $heroVideoUrl = SiteSetting::formatUrl($heroVideoPath);
 
         return response()->json([
             'data' => [
