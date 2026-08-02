@@ -22,6 +22,16 @@ test('admin can upload a valid image', function () {
     Storage::disk(config('filesystems.default'))->assertExists($response->json('path'));
 });
 
+test('admin can upload a testimonial avatar', function () {
+    $response = $this->postJson('/api/v1/admin/uploads', [
+        'file' => UploadedFile::fake()->image('avatar.jpg'),
+        'folder' => 'testimonials',
+    ]);
+
+    $response->assertCreated();
+    expect($response->json('path'))->toStartWith('testimonials/');
+});
+
 test('upload rejects a non-image file', function () {
     $response = $this->postJson('/api/v1/admin/uploads', [
         'file' => UploadedFile::fake()->create('document.pdf', 100, 'application/pdf'),

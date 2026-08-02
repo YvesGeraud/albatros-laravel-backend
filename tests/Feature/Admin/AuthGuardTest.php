@@ -17,4 +17,6 @@ test('admin endpoints reject requests without a session', function (string $meth
     ['POST', '/api/v1/admin/events/1/media'],
     ['GET', '/api/v1/admin/quotes'],
     ['POST', '/api/v1/admin/uploads'],
+    ['GET', '/api/v1/admin/testimonials'],
+    ['POST', '/api/v1/admin/testimonials'],
 ]);

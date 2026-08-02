@@ -7,6 +7,7 @@ use App\Models\Combo;
 use App\Models\Event;
 use App\Models\EventMedia;
 use App\Models\Product;
+use App\Models\Testimonial;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -210,7 +211,7 @@ class DatabaseSeeder extends Seeder
             'sort_order' => 1,
         ]);
 
-        Event::create([
+        $eventoHuamantla = Event::create([
             'title' => 'Boda en Huamantla',
             'slug' => 'boda-en-huamantla',
             'description' => 'Presentación en vivo ahora mismo desde Huamantla.',
@@ -220,6 +221,14 @@ class DatabaseSeeder extends Seeder
             'longitude' => -97.9167,
             'event_date' => now(),
             'is_live' => true,
+        ]);
+        EventMedia::create([
+            'event_id' => $eventoHuamantla->id,
+            'type' => 'youtube_live',
+            'url' => 'https://www.youtube.com/watch?v=5qap5aO4i9A',
+            'external_id' => '5qap5aO4i9A',
+            'caption' => 'Transmisión en vivo',
+            'sort_order' => 1,
         ]);
 
         Event::create([
@@ -232,6 +241,30 @@ class DatabaseSeeder extends Seeder
             'longitude' => -98.1833,
             'event_date' => now()->addWeeks(3),
             'is_live' => false,
+        ]);
+
+        Testimonial::create([
+            'customer_name' => 'Mariana y Luis',
+            'event_type' => 'Boda',
+            'content' => 'Albatros hizo que nuestra boda fuera inolvidable. El sonido y la iluminación estuvieron perfectos toda la noche, y los invitados no dejaron de bailar.',
+            'rating' => 5,
+            'sort_order' => 1,
+        ]);
+
+        Testimonial::create([
+            'customer_name' => 'Familia Hernández',
+            'event_type' => 'XV años',
+            'content' => 'Muy profesionales desde la cotización hasta el evento. La pista de baile LED fue el éxito de la fiesta.',
+            'rating' => 5,
+            'sort_order' => 2,
+        ]);
+
+        Testimonial::create([
+            'customer_name' => 'Constructora Tlaxcala S.A.',
+            'event_type' => 'Evento empresarial',
+            'content' => 'Contratamos el combo de sonido e iluminación para nuestra posada anual. Excelente servicio y puntualidad.',
+            'rating' => 4,
+            'sort_order' => 3,
         ]);
     }
 }

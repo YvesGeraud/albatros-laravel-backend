@@ -39,4 +39,20 @@ class EventController extends Controller
 
         return $event ? new EventResource($event) : response()->json(null);
     }
+
+    /**
+     * Video for the homepage's big hero banner: the live event's video if
+     * there's a live event right now, otherwise the most recent event that
+     * has a YouTube video attached (a "highlight reel" fallback).
+     */
+    public function featuredVideo()
+    {
+        $event = Event::with('media')->where('is_live', true)->first()
+            ?? Event::with('media')
+                ->whereHas('media', fn ($q) => $q->whereIn('type', ['youtube_video', 'youtube_live']))
+                ->orderByDesc('event_date')
+                ->first();
+
+        return $event ? new EventResource($event) : response()->json(null);
+    }
 }
