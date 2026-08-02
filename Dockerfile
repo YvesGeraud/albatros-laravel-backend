@@ -7,6 +7,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && a2enmod rewrite
 
+# Configure PHP upload limits for video files
+RUN echo "upload_max_filesize = 100M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 105M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini
+
 # mod_php requires the prefork MPM (it isn't thread-safe).  apt-get and
 # a2enmod can silently re-enable mpm_event on top of mpm_prefork, causing
 # "AH00534: More than one MPM loaded" at runtime.  We fix this in a
