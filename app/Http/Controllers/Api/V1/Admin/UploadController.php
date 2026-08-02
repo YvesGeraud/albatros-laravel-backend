@@ -15,7 +15,10 @@ class UploadController extends Controller
         $folder = $request->validated('folder');
         $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
 
-        $path = $file->storeAs($folder, $filename, config('filesystems.default'));
+        $path = $file->storeAs($folder, $filename, [
+            'disk' => config('filesystems.default'),
+            'visibility' => 'public',
+        ]);
 
         return response()->json([
             'path' => $path,
