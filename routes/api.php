@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Api\V1\Admin\EventMediaController as AdminEventMediaController;
 use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\QuoteController as AdminQuoteController;
+use App\Http\Controllers\Api\V1\Admin\SiteSettingController as AdminSiteSettingController;
 use App\Http\Controllers\Api\V1\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\Api\V1\Admin\UploadController as AdminUploadController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Api\V1\ComboController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\QuoteController;
+use App\Http\Controllers\Api\V1\SiteSettingController;
 use App\Http\Controllers\Api\V1\TestimonialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::get('events/{event:slug}', [EventController::class, 'show']);
 
     Route::get('testimonials', [TestimonialController::class, 'index']);
+    Route::get('settings/hero', [SiteSettingController::class, 'hero']);
 
     Route::post('quotes', [QuoteController::class, 'store']);
 
@@ -60,5 +63,7 @@ Route::prefix('v1')->group(function () {
         Route::patch('quotes/{quote}', [AdminQuoteController::class, 'update']);
         Route::post('uploads', [AdminUploadController::class, 'store']);
         Route::apiResource('testimonials', AdminTestimonialController::class);
+        Route::get('settings', [AdminSiteSettingController::class, 'index']);
+        Route::put('settings', [AdminSiteSettingController::class, 'update']);
     });
 });
