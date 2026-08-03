@@ -39,6 +39,7 @@ Route::prefix('v1')->group(function () {
     Route::get('events/{event:slug}', [EventController::class, 'show']);
 
     Route::get('testimonials', [TestimonialController::class, 'index']);
+    Route::get('settings', [SiteSettingController::class, 'index']);
     Route::get('settings/hero', [SiteSettingController::class, 'hero']);
 
     Route::post('quotes', [QuoteController::class, 'store']);
