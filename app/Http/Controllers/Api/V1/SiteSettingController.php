@@ -28,6 +28,11 @@ class SiteSettingController extends Controller
                 'social_tiktok'    => $settings['social_tiktok'] ?? '',
                 'whatsapp_number'  => $settings['whatsapp_number'] ?? '',
                 'hero_video_url'   => $heroVideoUrl,
+                'hero_kicker'      => $settings['hero_kicker'] ?? 'TLAXCALA · SONIDO Y EVENTOS',
+                'hero_subtitle'    => $settings['hero_subtitle'] ?? 'Sonido, iluminación, pista de baile y bailarines para que tu evento sea inolvidable.',
+                'hero_phrases'     => $settings['hero_phrases'] ?? '¡Haz tu Fiesta Única!|Sonido · Iluminación · Pista de Baile|Albatros Tlaxcala',
+                'about_title'      => $settings['about_title'] ?? 'Sobre Grupo Albatros',
+                'about_text'       => $settings['about_text'] ?? '',
             ],
         ]);
     }
