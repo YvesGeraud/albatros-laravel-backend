@@ -25,7 +25,7 @@ class UploadRequest extends FormRequest
 
         return [
             'file' => ['required', 'file', 'image', 'max:5120', 'mimes:jpg,jpeg,png,webp,gif'],
-            'folder' => ['required', Rule::in(['products', 'combos', 'events', 'testimonials', 'hero'])],
+            'folder' => ['required', Rule::in(['products', 'combos', 'events', 'testimonials', 'hero', 'about'])],
         ];
     }
 }

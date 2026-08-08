@@ -25,7 +25,9 @@ class SiteSettingController extends Controller
         'hero_subtitle',
         'hero_phrases',
         'about_title',
-        'about_text',
+        'about_description',
+        'about_bullets',
+        'about_image_path',
     ];
 
     public function index()
@@ -50,7 +52,10 @@ class SiteSettingController extends Controller
                 'hero_subtitle'    => $settings['hero_subtitle'] ?? 'Sonido, iluminación, pista de baile y bailarines para que tu evento sea inolvidable.',
                 'hero_phrases'     => $settings['hero_phrases'] ?? '¡Haz tu Fiesta Única!|Sonido · Iluminación · Pista de Baile|Albatros Tlaxcala',
                 'about_title'      => $settings['about_title'] ?? 'Sobre Grupo Albatros',
-                'about_text'       => $settings['about_text'] ?? '',
+                'about_description'=> $settings['about_description'] ?? '',
+                'about_bullets'    => $settings['about_bullets'] ?? '',
+                'about_image_path' => $settings['about_image_path'] ?? null,
+                'about_image_url'  => SiteSetting::formatUrl($settings['about_image_path'] ?? null),
             ],
         ]);
     }
@@ -70,7 +75,9 @@ class SiteSettingController extends Controller
             'hero_subtitle'    => ['nullable', 'string', 'max:500'],
             'hero_phrases'     => ['nullable', 'string', 'max:1000'],
             'about_title'      => ['nullable', 'string', 'max:200'],
-            'about_text'       => ['nullable', 'string', 'max:5000'],
+            'about_description'=> ['nullable', 'string', 'max:2000'],
+            'about_bullets'    => ['nullable', 'string', 'max:2000'],
+            'about_image_path' => ['nullable', 'string'],
         ]);
 
         foreach (self::EDITABLE_KEYS as $key) {

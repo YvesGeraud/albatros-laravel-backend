@@ -32,7 +32,9 @@ class SiteSettingController extends Controller
                 'hero_subtitle'    => $settings['hero_subtitle'] ?? 'Sonido, iluminación, pista de baile y bailarines para que tu evento sea inolvidable.',
                 'hero_phrases'     => $settings['hero_phrases'] ?? '¡Haz tu Fiesta Única!|Sonido · Iluminación · Pista de Baile|Albatros Tlaxcala',
                 'about_title'      => $settings['about_title'] ?? 'Sobre Grupo Albatros',
-                'about_text'       => $settings['about_text'] ?? '',
+                'about_description'=> $settings['about_description'] ?? '',
+                'about_bullets'    => $settings['about_bullets'] ?? '',
+                'about_image_url'  => SiteSetting::formatUrl($settings['about_image_path'] ?? null),
             ],
         ]);
     }
