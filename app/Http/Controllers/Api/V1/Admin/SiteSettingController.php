@@ -37,6 +37,7 @@ class SiteSettingController extends Controller
         'curated_videos_data',
         'services_list_data',
         'simulator_packages_data',
+        'event_packages_data',
         'testimonials_list_data',
         // Live Stream CMS fields
         'live_stream_active',
@@ -102,6 +103,7 @@ class SiteSettingController extends Controller
                 'curated_videos_data'      => $decodeJson('curated_videos_data'),
                 'services_list_data'       => $decodeJson('services_list_data'),
                 'simulator_packages_data'  => $decodeJson('simulator_packages_data'),
+                'event_packages_data'      => $decodeJson('event_packages_data'),
                 'testimonials_list_data'   => $decodeJson('testimonials_list_data'),
 
                 // Live Stream CMS fields
@@ -144,6 +146,7 @@ class SiteSettingController extends Controller
             'curated_videos_data'      => ['nullable'],
             'services_list_data'       => ['nullable'],
             'simulator_packages_data'  => ['nullable'],
+            'event_packages_data'      => ['nullable', 'array', 'max:3'],
             'testimonials_list_data'   => ['nullable'],
 
             // Live Stream

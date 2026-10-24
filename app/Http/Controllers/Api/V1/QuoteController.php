@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StorePackageQuoteRequest;
 use App\Http\Requests\StoreQuoteRequest;
 use App\Http\Resources\QuoteResource;
 use App\Models\Combo;
@@ -54,6 +55,21 @@ class QuoteController extends Controller
 
             return $quote;
         });
+
+        return new QuoteResource($quote->load('items'));
+    }
+
+    /**
+     * Package inquiries carry no line items or price: the admin contacts
+     * the customer and quotes based on guests, venue and location.
+     */
+    public function storePackage(StorePackageQuoteRequest $request)
+    {
+        $quote = Quote::create([
+            ...$request->validated(),
+            'total' => 0,
+            'status' => 'pending',
+        ]);
 
         return new QuoteResource($quote->load('items'));
     }

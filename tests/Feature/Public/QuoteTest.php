@@ -47,3 +47,35 @@ test('quote rejects an unknown quotable id', function () {
 
     $response->assertStatus(404);
 });
+
+test('package quote is stored as pending with event details', function () {
+    $response = $this->postJson('/api/v1/quotes/package', [
+        'package' => 'golden',
+        'customer_name' => 'Ana López',
+        'customer_phone' => '2461234567',
+        'guests' => 180,
+        'event_location' => 'Apizaco, Tlaxcala',
+        'venue_type' => 'jardin',
+    ]);
+
+    $response->assertCreated();
+
+    $quote = Quote::first();
+    expect($quote->package)->toBe('golden');
+    expect($quote->guests)->toBe(180);
+    expect($quote->venue_type)->toBe('jardin');
+    expect($quote->status)->toBe('pending');
+    expect($quote->items)->toHaveCount(0);
+});
+
+test('package quote requires a phone or an email', function () {
+    $response = $this->postJson('/api/v1/quotes/package', [
+        'package' => 'basico',
+        'customer_name' => 'Ana López',
+        'guests' => 80,
+        'event_location' => 'Tlaxcala',
+        'venue_type' => 'salon',
+    ]);
+
+    $response->assertStatus(422)->assertJsonValidationErrors(['customer_phone', 'customer_email']);
+});

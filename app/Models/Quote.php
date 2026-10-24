@@ -11,7 +11,11 @@ class Quote extends Model
         'customer_name',
         'customer_email',
         'customer_phone',
+        'package',
         'event_date',
+        'guests',
+        'event_location',
+        'venue_type',
         'notes',
         'total',
         'status',
@@ -19,6 +23,7 @@ class Quote extends Model
 
     protected $casts = [
         'event_date' => 'date',
+        'guests' => 'integer',
         'total' => 'decimal:2',
     ];
 

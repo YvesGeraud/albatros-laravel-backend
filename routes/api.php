@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function () {
     Route::get('settings/hero', [SiteSettingController::class, 'hero']);
 
     Route::post('quotes', [QuoteController::class, 'store']);
+    Route::post('quotes/package', [QuoteController::class, 'storePackage']);
 
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
