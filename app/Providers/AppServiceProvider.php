@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,5 +34,18 @@ class AppServiceProvider extends ServiceProvider
             // polymorphically.
             'user' => User::class,
         ]);
+
+        // Runs before Sanctum refreshes last_used_at, so this sees the time
+        // of the token's previous request: reject it if that was too long ago.
+        Sanctum::authenticateAccessTokensUsing(function ($token, bool $isValid) {
+            $idleMinutes = config('sanctum.idle_timeout');
+            if (! $isValid || ! $idleMinutes) {
+                return $isValid;
+            }
+
+            $lastActivity = $token->last_used_at ?? $token->created_at;
+
+            return $lastActivity->gt(now()->subMinutes($idleMinutes));
+        });
     }
 }

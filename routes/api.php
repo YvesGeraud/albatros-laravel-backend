@@ -42,10 +42,12 @@ Route::prefix('v1')->group(function () {
     Route::get('settings', [SiteSettingController::class, 'index']);
     Route::get('settings/hero', [SiteSettingController::class, 'hero']);
 
-    Route::post('quotes', [QuoteController::class, 'store']);
-    Route::post('quotes/package', [QuoteController::class, 'storePackage']);
+    // Endpoints públicos que escriben en la BD: limitados para evitar spam.
+    Route::post('quotes', [QuoteController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('quotes/package', [QuoteController::class, 'storePackage'])->middleware('throttle:10,1');
 
-    Route::post('login', [AuthController::class, 'login']);
+    // 5 intentos por minuto por IP para frenar ataques de fuerza bruta.
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     Route::get('user', function (Request $request) {

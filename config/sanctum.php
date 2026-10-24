@@ -50,7 +50,13 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Admin tokens live in localStorage, so cap their lifetime: after this
+    // many minutes the admin must log in again (8 hours by default).
+    'expiration' => (int) env('SANCTUM_EXPIRATION', 480),
+
+    // Minutes without any API request after which the token stops working,
+    // even if it hasn't reached its absolute expiration yet.
+    'idle_timeout' => (int) env('SANCTUM_IDLE_TIMEOUT', 30),
 
     /*
     |--------------------------------------------------------------------------

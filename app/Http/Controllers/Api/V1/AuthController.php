@@ -31,6 +31,12 @@ class AuthController extends Controller
             ]);
         }
 
+        // Expired tokens are already rejected by Sanctum; drop them here so
+        // they don't pile up, since no scheduler runs sanctum:prune-expired.
+        $user->tokens()
+            ->where('created_at', '<', now()->subMinutes(config('sanctum.expiration')))
+            ->delete();
+
         $token = $user->createToken('admin-panel')->plainTextToken;
 
         return response()->json([
