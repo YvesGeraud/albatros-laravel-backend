@@ -15,22 +15,30 @@ class UploadController extends Controller
         $folder = $request->validated('folder');
         $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
 
-        $path = $file->storeAs($folder, $filename, [
-            'disk' => config('filesystems.default'),
-            'visibility' => 'public',
-        ]);
+        $disk = config('filesystems.default');
+
+        try {
+            $path = $file->storeAs($folder, $filename, [
+                'disk' => $disk,
+                'visibility' => 'public',
+            ]);
+            $reason = 'storeAs devolvió false';
+        } catch (\Throwable $e) {
+            $path = false;
+            $reason = $e->getMessage();
+        }
 
         if (! is_string($path) || $path === '') {
-            \Log::error('Upload failed: storeAs returned false', [
-                'folder' => $folder,
-                'disk' => config('filesystems.default'),
-                'error' => $file->getErrorMessage(),
-            ]);
+            try {
+                \Log::error('Upload failed', ['folder' => $folder, 'disk' => $disk, 'reason' => $reason]);
+            } catch (\Throwable) {
+            }
 
             return response()->json([
-                'message' => 'No se pudo guardar el archivo en el servidor (revisa permisos de storage/ o espacio en disco).',
+                'message' => "No se pudo guardar el archivo (disco: {$disk}). Causa: {$reason}",
             ], 500);
         }
+
 
         return response()->json([
             'path' => $path,
