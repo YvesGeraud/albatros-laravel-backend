@@ -20,6 +20,18 @@ class UploadController extends Controller
             'visibility' => 'public',
         ]);
 
+        if (! is_string($path) || $path === '') {
+            \Log::error('Upload failed: storeAs returned false', [
+                'folder' => $folder,
+                'disk' => config('filesystems.default'),
+                'error' => $file->getErrorMessage(),
+            ]);
+
+            return response()->json([
+                'message' => 'No se pudo guardar el archivo en el servidor (revisa permisos de storage/ o espacio en disco).',
+            ], 500);
+        }
+
         return response()->json([
             'path' => $path,
             'url' => \App\Models\SiteSetting::formatUrl($path),
