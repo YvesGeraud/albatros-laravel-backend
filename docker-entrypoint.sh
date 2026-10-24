@@ -52,6 +52,14 @@ php artisan migrate --force
 # not allowed or link target not accessible").
 [ -L public/storage ] || php artisan storage:link --relative
 
+# Apache runs as www-data, but this script (and COPY . .) runs as root, so
+# storage/ and bootstrap/cache end up root-owned and unwritable. That makes
+# uploads (storeAs() returns false) and even log writes fail with a bare 500
+# that has no CORS headers. Make them writable by the web server.
+mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/logs
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R ug+rwX storage bootstrap/cache
+
 # Belt-and-suspenders: guarantee only mpm_prefork is enabled right before
 # Apache starts.  Build-time cleanup can be silently undone by a2enmod or
 # apt triggers; this runtime guard is the last line of defence against
