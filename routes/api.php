@@ -1,13 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Api\V1\Admin\ComboController as AdminComboController;
-use App\Http\Controllers\Api\V1\Admin\EventController as AdminEventController;
-use App\Http\Controllers\Api\V1\Admin\EventMediaController as AdminEventMediaController;
-use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Api\V1\Admin\QuoteController as AdminQuoteController;
 use App\Http\Controllers\Api\V1\Admin\SiteSettingController as AdminSiteSettingController;
-use App\Http\Controllers\Api\V1\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\Api\V1\Admin\UploadController as AdminUploadController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CatalogController;
@@ -55,18 +48,7 @@ Route::prefix('v1')->group(function () {
     })->middleware('auth:sanctum');
 
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-        Route::apiResource('categories', AdminCategoryController::class);
-        Route::apiResource('products', AdminProductController::class);
-        Route::apiResource('combos', AdminComboController::class);
-        Route::apiResource('events', AdminEventController::class);
-        Route::apiResource('events.media', AdminEventMediaController::class)
-            ->shallow()
-            ->only(['index', 'store', 'update', 'destroy']);
-        Route::get('quotes', [AdminQuoteController::class, 'index']);
-        Route::get('quotes/{quote}', [AdminQuoteController::class, 'show']);
-        Route::patch('quotes/{quote}', [AdminQuoteController::class, 'update']);
         Route::post('uploads', [AdminUploadController::class, 'store']);
-        Route::apiResource('testimonials', AdminTestimonialController::class);
         Route::get('settings', [AdminSiteSettingController::class, 'index']);
         Route::put('settings', [AdminSiteSettingController::class, 'update']);
     });

@@ -20,11 +20,11 @@ test('login returns a bearer token that grants access to admin routes', function
     expect($login->json('user.id'))->toBe($user->id);
 
     // No token / no session at all -> rejected.
-    $this->getJson('/api/v1/admin/categories')->assertStatus(401);
+    $this->getJson('/api/v1/admin/settings')->assertStatus(401);
 
     // Bearer token from login -> accepted.
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson('/api/v1/admin/categories')
+        ->getJson('/api/v1/admin/settings')
         ->assertOk();
 });
 
@@ -56,7 +56,7 @@ test('logout revokes the current token', function () {
     Auth::forgetGuards();
 
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson('/api/v1/admin/categories')
+        ->getJson('/api/v1/admin/settings')
         ->assertStatus(401);
 });
 
@@ -67,7 +67,7 @@ test('tokens expire after the configured lifetime', function () {
     $this->travel(config('sanctum.expiration') + 1)->minutes();
 
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson('/api/v1/admin/categories')
+        ->getJson('/api/v1/admin/settings')
         ->assertStatus(401);
 });
 
@@ -99,7 +99,7 @@ test('tokens idle longer than the idle timeout are rejected', function () {
     $this->travel(config('sanctum.idle_timeout') + 1)->minutes();
 
     $this->withHeader('Authorization', "Bearer {$token}")
-        ->getJson('/api/v1/admin/categories')
+        ->getJson('/api/v1/admin/settings')
         ->assertStatus(401);
 });
 
@@ -114,7 +114,7 @@ test('regular activity keeps the token alive past the idle timeout', function ()
         Auth::forgetGuards();
 
         $this->withHeader('Authorization', "Bearer {$token}")
-            ->getJson('/api/v1/admin/categories')
+            ->getJson('/api/v1/admin/settings')
             ->assertOk();
     }
 });
