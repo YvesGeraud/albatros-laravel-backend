@@ -43,7 +43,7 @@ test('upload rejects a non-image file', function () {
 
 test('upload rejects an oversized file', function () {
     $response = $this->postJson('/api/v1/admin/uploads', [
-        'file' => UploadedFile::fake()->image('big.jpg')->size(6000),
+        'file' => UploadedFile::fake()->image('big.jpg')->size(11000),
         'folder' => 'products',
     ]);
 
