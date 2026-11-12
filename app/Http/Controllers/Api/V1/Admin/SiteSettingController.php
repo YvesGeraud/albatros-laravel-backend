@@ -56,13 +56,16 @@ class SiteSettingController extends Controller
         $heroVideoPath = $settings['hero_video_path'] ?? null;
         $heroVideoUrl = SiteSetting::formatUrl($heroVideoPath);
 
-        // Helper to decode JSON settings safely
+        // Helper to decode JSON settings safely and resolve fresh media URLs
         $decodeJson = function ($key) use ($settings) {
             if (empty($settings[$key])) {
                 return null;
             }
             $decoded = json_decode($settings[$key], true);
-            return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return null;
+            }
+            return SiteSetting::formatMediaUrls($decoded);
         };
 
         // Check if an event is currently live in DB
@@ -163,9 +166,12 @@ class SiteSettingController extends Controller
             if (array_key_exists($key, $validated)) {
                 $val = $validated[$key];
                 if (is_array($val) || is_object($val)) {
-                    $val = json_encode($val, JSON_UNESCAPED_UNICODE);
+                    $normalized = SiteSetting::normalizeMediaPaths(json_decode(json_encode($val), true));
+                    $val = json_encode($normalized, JSON_UNESCAPED_UNICODE);
                 } elseif (is_bool($val)) {
                     $val = $val ? '1' : '0';
+                } elseif (is_string($val) && in_array($key, ['hero_video_path', 'about_image_path'], true)) {
+                    $val = SiteSetting::extractStoragePath($val);
                 }
                 SiteSetting::setValue($key, $val);
             }

@@ -18,13 +18,16 @@ class SiteSettingController extends Controller
         $heroVideoPath = $settings['hero_video_path'] ?? null;
         $heroVideoUrl = SiteSetting::formatUrl($heroVideoPath);
 
-        // Helper to decode JSON settings safely
+        // Helper to decode JSON settings safely and resolve fresh media URLs
         $decodeJson = function ($key) use ($settings) {
             if (empty($settings[$key])) {
                 return null;
             }
             $decoded = json_decode($settings[$key], true);
-            return json_last_error() === JSON_ERROR_NONE ? $decoded : null;
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return null;
+            }
+            return SiteSetting::formatMediaUrls($decoded);
         };
 
         // Check if an event is currently live in DB

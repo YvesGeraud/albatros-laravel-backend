@@ -32,11 +32,109 @@ class SiteSetting extends Model
         );
     }
 
+    private const UPLOAD_FOLDERS = [
+        'products',
+        'combos',
+        'events',
+        'testimonials',
+        'hero',
+        'about',
+        'gallery',
+        'trayectoria',
+        'paquetes',
+        'cms',
+    ];
+
+    /**
+     * If $value is a stored URL from our own bucket or local storage (even an
+     * expired S3 presigned URL with ?X-Amz-... query parameters), extract its
+     * clean relative storage path (e.g. "gallery/uuid.jpg"). External URLs
+     * (like Unsplash) are returned untouched.
+     */
+    public static function extractStoragePath(?string $value): ?string
+    {
+        if (! $value) {
+            return $value;
+        }
+
+        if (! str_starts_with($value, 'http://') && ! str_starts_with($value, 'https://')) {
+            return ltrim($value, '/');
+        }
+
+        $foldersPattern = implode('|', self::UPLOAD_FOLDERS);
+        $root = trim((string) config('filesystems.disks.s3.root', 'albatros'), '/');
+        $bucket = trim((string) config('filesystems.disks.s3.bucket', ''), '/');
+
+        $urlPath = parse_url($value, PHP_URL_PATH);
+        if (! is_string($urlPath) || $urlPath === '') {
+            return $value;
+        }
+
+        $urlPath = rawurldecode($urlPath);
+
+        $isSignedS3 = str_contains($value, 'X-Amz-Signature') || str_contains($value, 'X-Amz-Algorithm') || str_contains($value, 'AWSAccessKeyId');
+        $isLocalStorage = str_contains($urlPath, '/storage/');
+        $hasRootPrefix = $root !== '' && preg_match('#(?:^|/)' . preg_quote($root, '#') . '/(' . $foldersPattern . ')/#', $urlPath);
+        $hasBucketPrefix = $bucket !== '' && str_contains($value, $bucket);
+
+        if ($isSignedS3 || $isLocalStorage || $hasRootPrefix || $hasBucketPrefix) {
+            if (preg_match('#(?:^|/)(?:storage/)?(?:' . preg_quote($root, '#') . '/)?((' . $foldersPattern . ')/[^?\#]+)$#i', $urlPath, $matches)) {
+                return $matches[1];
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Recursively normalize any stored media URLs inside a decoded JSON array
+     * into relative storage paths before saving to the database.
+     */
+    public static function normalizeMediaPaths(mixed $data): mixed
+    {
+        if (! is_array($data)) {
+            return $data;
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = static::normalizeMediaPaths($value);
+            } elseif (is_string($value) && in_array($key, ['image', 'url', 'avatar', 'photo', 'video'], true)) {
+                $data[$key] = static::extractStoragePath($value);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Recursively format any relative storage paths (or previously saved
+     * expired S3 URLs) inside a decoded JSON array into fresh URLs.
+     */
+    public static function formatMediaUrls(mixed $data): mixed
+    {
+        if (! is_array($data)) {
+            return $data;
+        }
+
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $data[$key] = static::formatMediaUrls($value);
+            } elseif (is_string($value) && in_array($key, ['image', 'url', 'avatar', 'photo', 'video'], true) && $value !== '') {
+                $data[$key] = static::formatUrl($value);
+            }
+        }
+
+        return $data;
+    }
+
     public static function formatUrl(?string $path): ?string
     {
         if (! $path) {
             return null;
         }
+
+        $path = static::extractStoragePath($path);
 
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
