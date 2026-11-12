@@ -71,11 +71,13 @@ class SiteSetting extends Model
         }
 
         $urlPath = rawurldecode($urlPath);
+        // Normalize multiple consecutive slashes (e.g. "///albatros///gallery///file.jpg")
+        $urlPath = preg_replace('#/+#', '/', $urlPath);
 
         $isSignedS3 = str_contains($value, 'X-Amz-Signature') || str_contains($value, 'X-Amz-Algorithm') || str_contains($value, 'AWSAccessKeyId');
         $isLocalStorage = str_contains($urlPath, '/storage/');
-        $hasRootPrefix = $root !== '' && preg_match('#(?:^|/)' . preg_quote($root, '#') . '/(' . $foldersPattern . ')/#', $urlPath);
-        $hasBucketPrefix = $bucket !== '' && str_contains($value, $bucket);
+        $hasRootPrefix = $root !== '' && preg_match('#(?:^|/)' . preg_quote($root, '#') . '/(' . $foldersPattern . ')/#i', $urlPath);
+        $hasBucketPrefix = ($bucket !== '' && str_contains($value, $bucket)) || str_contains($value, 'storageapi.dev');
 
         if ($isSignedS3 || $isLocalStorage || $hasRootPrefix || $hasBucketPrefix) {
             if (preg_match('#(?:^|/)(?:storage/)?(?:' . preg_quote($root, '#') . '/)?((' . $foldersPattern . ')/[^?\#]+)$#i', $urlPath, $matches)) {
@@ -144,7 +146,10 @@ class SiteSetting extends Model
 
         if ($disk === 's3') {
             try {
-                $signedUrl = \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($path, now()->addDays(7));
+                $cacheKey = 's3_signed_url:' . md5($path);
+                $signedUrl = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addDays(6), function () use ($path) {
+                    return \Illuminate\Support\Facades\Storage::disk('s3')->temporaryUrl($path, now()->addDays(7));
+                });
                 if ($signedUrl) {
                     return $signedUrl;
                 }
